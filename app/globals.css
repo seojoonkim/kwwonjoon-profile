@@ -3,7 +3,7 @@
 :root {
   --color-navy: #1a2744;
   --color-gold: #B8973A;
-  --color-cream: #F8F6F1;
+  --color-cream: #FFFFFF;
   --color-divider: #E8E0D0;
   --color-text: #0D1117;
 }
@@ -13,7 +13,7 @@
   --font-inter: var(--font-inter);
   --color-navy: #1a2744;
   --color-gold: #B8973A;
-  --color-cream: #F8F6F1;
+  --color-cream: #FFFFFF;
   --color-divider: #E8E0D0;
 }
 
@@ -108,7 +108,7 @@ h1, h2, h3, h4 {
 }
 
 .lang-pill:not(.active):hover {
-  background-color: #F8F6F1;
+  background-color: #f5f5f5;
 }
 
 /* Stagger children animation delays */

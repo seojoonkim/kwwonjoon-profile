@@ -2,6 +2,71 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 
+// SVG 아이콘 컴포넌트 모음 (모두 인라인 SVG, stroke 기반, 깔끔한 선형)
+
+const IconGraduation = ({ className = '' }: { className?: string }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+  </svg>
+)
+
+const IconBriefcase = ({ className = '' }: { className?: string }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2"/>
+    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+    <line x1="12" y1="12" x2="12" y2="12"/>
+    <path d="M2 12h20"/>
+  </svg>
+)
+
+const IconBook = ({ className = '' }: { className?: string }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+  </svg>
+)
+
+const IconGlobe = ({ className = '' }: { className?: string }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="2" y1="12" x2="22" y2="12"/>
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+  </svg>
+)
+
+const IconAward = ({ className = '' }: { className?: string }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="6"/>
+    <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+  </svg>
+)
+
+const IconResearch = ({ className = '' }: { className?: string }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+)
+
+const IconChevronDown = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+)
+
+const IconStar = ({ className = '' }: { className?: string }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+  </svg>
+)
+
+const TimelineMarker = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" className="flex-shrink-0">
+    <circle cx="8" cy="8" r="6" fill="white" stroke="#B8973A" strokeWidth="2"/>
+  </svg>
+)
+
 type Lang = 'ko' | 'en' | 'ja' | 'zh'
 
 const content: Record<Lang, {
@@ -328,15 +393,13 @@ export default function Home() {
           </div>
         </div>
         {/* Scroll indicator */}
-        <div className="absolute bottom-10 animate-bounce">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B8973A" strokeWidth="1.5">
-            <path d="M12 5v14M5 12l7 7 7-7" />
-          </svg>
+        <div className="absolute bottom-10 animate-bounce text-[#B8973A]">
+          <IconChevronDown />
         </div>
       </section>
 
       {/* About */}
-      <section className="py-20 md:py-28 px-6 bg-[#F8F6F1]">
+      <section className="py-20 md:py-28 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="fade-in-up mb-12">
             <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.aboutTitle}</h2>
@@ -351,16 +414,16 @@ export default function Home() {
             <div className="md:col-span-2 fade-in-up stagger-2">
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: '🎓', label: lang === 'ko' ? '학술 연구' : lang === 'en' ? 'Academia' : lang === 'ja' ? '学術研究' : '学术研究', value: '20+' },
-                  { icon: '🌏', label: lang === 'ko' ? '글로벌 자문' : lang === 'en' ? 'Global Advisory' : lang === 'ja' ? 'グローバル諮問' : '全球咨询', value: 'WB · UN' },
-                  { icon: '📚', label: lang === 'ko' ? '저서' : lang === 'en' ? 'Publications' : lang === 'ja' ? '著書' : '著作', value: '탄력성장' },
-                  { icon: '💼', label: lang === 'ko' ? '현직' : lang === 'en' ? 'Current' : lang === 'ja' ? '現職' : '现任', value: 'CEO' },
+                  { icon: <IconGraduation className="text-[#B8973A]" />, label: lang === 'ko' ? '학술 연구' : lang === 'en' ? 'Academia' : lang === 'ja' ? '学術研究' : '学术研究', value: '20+' },
+                  { icon: <IconGlobe className="text-[#B8973A]" />, label: lang === 'ko' ? '글로벌 자문' : lang === 'en' ? 'Global Advisory' : lang === 'ja' ? 'グローバル諮問' : '全球咨询', value: 'WB · UN' },
+                  { icon: <IconBook className="text-[#B8973A]" />, label: lang === 'ko' ? '저서' : lang === 'en' ? 'Publications' : lang === 'ja' ? '著書' : '著作', value: '탄력성장' },
+                  { icon: <IconBriefcase className="text-[#B8973A]" />, label: lang === 'ko' ? '현직' : lang === 'en' ? 'Current' : lang === 'ja' ? '現職' : '现任', value: 'CEO' },
                 ].map((item, i) => (
                   <div
                     key={i}
                     className={`card-hover border border-[#E8E0D0] rounded-sm p-4 bg-white fade-in-up stagger-${i + 2}`}
                   >
-                    <span className="text-2xl mb-2 block">{item.icon}</span>
+                    <span className="mb-2 block">{item.icon}</span>
                     <p className="font-[family-name:var(--font-inter)] text-xs text-gray-400 uppercase tracking-wider">{item.label}</p>
                     <p className="font-[family-name:var(--font-cormorant)] text-lg font-semibold text-[#1a2744] mt-1">{item.value}</p>
                   </div>
@@ -372,17 +435,20 @@ export default function Home() {
       </section>
 
       {/* Education Timeline */}
-      <section className="py-20 md:py-28 px-6">
+      <section className="py-20 md:py-28 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="fade-in-up mb-12">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.educationTitle}</h2>
+            <div className="flex items-center gap-3">
+              <IconGraduation className="text-[#B8973A] w-6 h-6" />
+              <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-0">{t.educationTitle}</h2>
+            </div>
             <hr className="gold-divider w-12 !mx-0 mt-4" />
           </div>
           <div className="space-y-8">
             {t.education.map((edu, i) => (
               <div key={edu.year} className={`fade-in-up stagger-${i + 1} relative flex gap-6 items-start`}>
                 <div className="flex flex-col items-center">
-                  <div className="timeline-dot" />
+                  <TimelineMarker />
                   {i < t.education.length - 1 && (
                     <div className="w-0.5 h-full bg-gradient-to-b from-[#B8973A] to-[#E8E0D0] mt-1 min-h-[40px]" />
                   )}
@@ -400,17 +466,20 @@ export default function Home() {
       </section>
 
       {/* Career Timeline */}
-      <section className="py-20 md:py-28 px-6 bg-[#F8F6F1]">
+      <section className="py-20 md:py-28 px-6 bg-white border-t border-[#E8E0D0]">
         <div className="max-w-4xl mx-auto">
           <div className="fade-in-up mb-12">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.careerTitle}</h2>
+            <div className="flex items-center gap-3">
+              <IconBriefcase className="text-[#B8973A] w-6 h-6" />
+              <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-0">{t.careerTitle}</h2>
+            </div>
             <hr className="gold-divider w-12 !mx-0 mt-4" />
           </div>
           <div className="space-y-8">
             {t.career.map((c, i) => (
               <div key={i} className={`fade-in-up stagger-${Math.min(i + 1, 5)} relative flex gap-6 items-start`}>
                 <div className="flex flex-col items-center">
-                  <div className="timeline-dot" />
+                  <TimelineMarker />
                   {i < t.career.length - 1 && (
                     <div className="w-0.5 h-full bg-gradient-to-b from-[#B8973A] to-[#E8E0D0] mt-1 min-h-[40px]" />
                   )}
@@ -428,10 +497,13 @@ export default function Home() {
       </section>
 
       {/* Publications */}
-      <section className="py-20 md:py-28 px-6">
+      <section className="py-20 md:py-28 px-6 bg-white border-t border-[#E8E0D0]">
         <div className="max-w-4xl mx-auto">
           <div className="fade-in-up mb-12">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.publicationsTitle}</h2>
+            <div className="flex items-center gap-3">
+              <IconBook className="text-[#B8973A] w-6 h-6" />
+              <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-0">{t.publicationsTitle}</h2>
+            </div>
             <hr className="gold-divider w-12 !mx-0 mt-4" />
           </div>
           <div className="space-y-6">
@@ -451,7 +523,7 @@ export default function Home() {
             {t.papers.map((paper, i) => (
               <div key={i} className={`fade-in-up stagger-${i + 1} card-hover border border-[#E8E0D0] rounded-sm p-6 md:p-8 bg-white`}>
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="font-[family-name:var(--font-inter)] text-xs bg-[#F8F6F1] text-[#1a2744] px-3 py-1 rounded-sm tracking-wider uppercase">
+                  <span className="font-[family-name:var(--font-inter)] text-xs bg-white border border-[#E8E0D0] text-[#1a2744] px-3 py-1 rounded-sm tracking-wider uppercase">
                     {t.paperLabel}
                   </span>
                   <span className="font-[family-name:var(--font-inter)] text-sm text-gray-400">{paper.year}</span>
@@ -466,10 +538,13 @@ export default function Home() {
       </section>
 
       {/* Activities */}
-      <section className="py-20 md:py-28 px-6 bg-[#F8F6F1]">
+      <section className="py-20 md:py-28 px-6 bg-white border-t border-[#E8E0D0]">
         <div className="max-w-4xl mx-auto">
           <div className="fade-in-up mb-12">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.activitiesTitle}</h2>
+            <div className="flex items-center gap-3">
+              <IconGlobe className="text-[#B8973A] w-6 h-6" />
+              <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-0">{t.activitiesTitle}</h2>
+            </div>
             <hr className="gold-divider w-12 !mx-0 mt-4" />
           </div>
           <div className="grid md:grid-cols-2 gap-4">
@@ -484,18 +559,22 @@ export default function Home() {
       </section>
 
       {/* Research Areas */}
-      <section className="py-20 md:py-28 px-6">
+      <section className="py-20 md:py-28 px-6 bg-white border-t border-[#E8E0D0]">
         <div className="max-w-4xl mx-auto">
           <div className="fade-in-up mb-12">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.researchTitle}</h2>
+            <div className="flex items-center gap-3">
+              <IconResearch className="text-[#B8973A] w-6 h-6" />
+              <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-0">{t.researchTitle}</h2>
+            </div>
             <hr className="gold-divider w-12 !mx-0 mt-4" />
           </div>
           <div className="flex flex-wrap gap-3 fade-in-up stagger-1">
             {t.researchAreas.map((area) => (
               <span
                 key={area}
-                className="font-[family-name:var(--font-inter)] px-4 py-2 text-sm border border-[#E8E0D0] text-gray-600 rounded-sm card-hover cursor-default"
+                className="font-[family-name:var(--font-inter)] inline-flex items-center gap-1.5 px-4 py-2 text-sm border border-[#E8E0D0] text-gray-600 rounded-sm card-hover cursor-default"
               >
+                <IconStar className="text-[#B8973A] w-3 h-3 flex-shrink-0" />
                 {area}
               </span>
             ))}
@@ -504,7 +583,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-6 border-t border-[#E8E0D0] bg-[#F8F6F1]">
+      <footer className="py-16 px-6 border-t border-[#E8E0D0] bg-white">
         <div className="max-w-4xl mx-auto text-center">
           <hr className="gold-divider w-12 mb-8" />
           <p className="font-[family-name:var(--font-inter)] text-sm text-gray-500">{t.footerOrg1}</p>
