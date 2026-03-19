@@ -1,296 +1,482 @@
+'use client'
+
+import { useState, useEffect, useRef, useCallback } from 'react'
+
+type Lang = 'ko' | 'en' | 'ja' | 'zh'
+
+const content: Record<Lang, {
+  name: string
+  nameEn: string
+  title: string
+  subtitle: string
+  heroLine: string
+  aboutTitle: string
+  aboutBody: string
+  educationTitle: string
+  careerTitle: string
+  publicationsTitle: string
+  activitiesTitle: string
+  researchTitle: string
+  footerOrg1: string
+  footerOrg2: string
+  bookLabel: string
+  paperLabel: string
+  education: { year: string; degree: string; field: string; school: string }[]
+  career: { period: string; title: string; org: string; desc: string }[]
+  book: { year: string; title: string; desc: string }
+  papers: { year: string; title: string; journal: string; desc: string }[]
+  activities: { title: string; desc: string }[]
+  researchAreas: string[]
+}> = {
+  ko: {
+    name: '김원준',
+    nameEn: 'Wonjoon Kim',
+    title: '삼성글로벌리서치 대표이사',
+    subtitle: 'KAIST 기술경영학부 교수',
+    heroLine: '기술과 경영의 교차점에서, 혁신의 본질을 묻다',
+    aboutTitle: '소개',
+    aboutBody: '김원준 교수는 기술과 경영의 교차점에서 혁신의 본질을 탐구해온 학자이자 실천가입니다. 서울대학교에서 기술정책으로 박사학위를 취득한 후, 예일대학교와 뉴욕대학교를 거쳐 KAIST 기술경영학부에서 20여 년간 후학을 양성하며 한국 기술경영 분야의 지평을 넓혀왔습니다. 《탄력성장》을 통해 불확실성의 시대에 조직이 나아갈 방향을 제시하였으며, 현재 삼성글로벌리서치 대표이사로서 연구와 실무의 경계를 허물며 새로운 가치를 창출하고 있습니다.',
+    educationTitle: '학력',
+    careerTitle: '주요 경력',
+    publicationsTitle: '주요 연구 및 저서',
+    activitiesTitle: '주요 활동 및 역할',
+    researchTitle: '연구 분야',
+    footerOrg1: '삼성글로벌리서치 (Samsung Global Research)',
+    footerOrg2: 'KAIST 기술경영학부',
+    bookLabel: '저서',
+    paperLabel: '논문',
+    education: [
+      { year: '2003', degree: '박사 (Ph.D.)', field: '기술정책', school: '서울대학교' },
+      { year: '1999', degree: '석사 (M.S.)', field: '재료공학', school: '서울대학교' },
+      { year: '1997', degree: '학사 (B.S.)', field: '재료공학', school: '연세대학교' },
+    ],
+    career: [
+      { period: '2023.12 – 현재', title: '대표이사', org: '삼성글로벌리서치', desc: '그룹 기술·산업 전략, 경영진단, 글로벌 이슈 분석 총괄' },
+      { period: '2005 – 현재', title: '기술경영학부 교수', org: 'KAIST', desc: '혁신전략·정책, 산업융합, 데이터 기반 사회과학 연구' },
+      { period: '2019 – 2022', title: '기술경영전문대학원장', org: 'KAIST', desc: '대학원 행정 및 연구 프로그램 총괄' },
+      { period: '2004 – 2005', title: '겸임조교수', org: '뉴욕대학교 (NYU Tandon)', desc: '' },
+      { period: '2003 – 2006', title: '연구원', org: '예일대학교 경영대학 (Yale SOM)', desc: '' },
+    ],
+    book: { year: '2021', title: '탄력성장', desc: '위기 이후 지속 가능한 성장 전략에 대한 연구와 통찰 (다산북스)' },
+    papers: [
+      { year: '2015', title: 'Dynamic Patterns of Industry Convergence', journal: 'Research Policy, 44(9): 1734–1748', desc: '미국 전 산업 대상 산업 간 경계 변화를 대규모 텍스트 분석으로 규명' },
+      { year: '2015', title: 'Reference Quality-Based Competitive Market Structure', journal: 'Intl. J. of Research in Marketing, 32(3): 284–296', desc: '소비자 참조품질 기반 혁신 시장의 경쟁구조 모형 실증' },
+      { year: '2012', title: 'The Effect of the Triple Helix System and Habitat on Regional Entrepreneurship', journal: 'Research Policy, 41(1): 154–166', desc: '대학·산업·정부 상호작용이 지역 창업에 미치는 효과 계량 분석' },
+    ],
+    activities: [
+      { title: '아시아 혁신·기업가정신학회(AIEA) 회장', desc: 'AIEA–NBER 컨퍼런스 조직위원장' },
+      { title: '과학기술단체총연합회 부회장', desc: '2020–2022' },
+      { title: '기술경영경제학회장', desc: '2022–2023' },
+      { title: 'KAIST 국제개발협력센터장', desc: '2018–2022' },
+      { title: '국제기구 자문', desc: 'World Bank · UN · ADB · IADB · Stanford FSI' },
+      { title: '과학기술정책위원회 위원장', desc: '과학기술단체총연합회, 2017–2020' },
+    ],
+    researchAreas: ['혁신전략', '기술정책', '산업융합', '데이터 기반 사회과학', '트리플 헬릭스', '기업가정신', '경영진단', '글로벌 이슈 분석'],
+  },
+  en: {
+    name: '김원준',
+    nameEn: 'Wonjoon Kim',
+    title: 'CEO, Samsung Global Research',
+    subtitle: 'Professor, KAIST School of Business & Technology Management',
+    heroLine: 'At the intersection of technology and management, questioning the essence of innovation',
+    aboutTitle: 'About',
+    aboutBody: 'Professor Wonjoon Kim is a distinguished scholar and practitioner who has devoted his career to exploring the essence of innovation at the nexus of technology and management. After earning his doctorate in Technology Policy from Seoul National University, he pursued research at Yale University and served as Adjunct Assistant Professor at New York University before joining KAIST, where he has cultivated the next generation of leaders in technology management for over two decades. Through his acclaimed work "Resilient Growth," he has offered a compelling vision for organizations navigating an era of profound uncertainty. As CEO of Samsung Global Research, he continues to bridge the divide between academic inquiry and corporate strategy, creating enduring value at the frontier of global innovation.',
+    educationTitle: 'Education',
+    careerTitle: 'Career',
+    publicationsTitle: 'Research & Publications',
+    activitiesTitle: 'Leadership & Service',
+    researchTitle: 'Research Areas',
+    footerOrg1: 'Samsung Global Research',
+    footerOrg2: 'KAIST School of Business & Technology Management',
+    bookLabel: 'Book',
+    paperLabel: 'Paper',
+    education: [
+      { year: '2003', degree: 'Ph.D.', field: 'Technology Policy', school: 'Seoul National University' },
+      { year: '1999', degree: 'M.S.', field: 'Materials Science & Engineering', school: 'Seoul National University' },
+      { year: '1997', degree: 'B.S.', field: 'Materials Science & Engineering', school: 'Yonsei University' },
+    ],
+    career: [
+      { period: '2023.12 – Present', title: 'Chief Executive Officer', org: 'Samsung Global Research', desc: 'Overseeing technology & industry strategy, management diagnostics, and global issue analysis' },
+      { period: '2005 – Present', title: 'Professor', org: 'KAIST School of Business & Technology Management', desc: 'Research in innovation strategy, technology policy, and data-driven social science' },
+      { period: '2019 – 2022', title: 'Dean, Graduate School of Innovation & Technology Management', org: 'KAIST', desc: '' },
+      { period: '2004 – 2005', title: 'Adjunct Assistant Professor', org: 'New York University (Tandon School of Engineering)', desc: '' },
+      { period: '2003 – 2006', title: 'Research Fellow', org: 'Yale School of Management', desc: '' },
+    ],
+    book: { year: '2021', title: 'Resilient Growth (탄력성장)', desc: 'Insights and strategies for sustainable growth beyond crises (Dasan Books)' },
+    papers: [
+      { year: '2015', title: 'Dynamic Patterns of Industry Convergence', journal: 'Research Policy, 44(9): 1734–1748', desc: 'Large-scale text analysis identifying cross-industry boundary shifts across U.S. industries' },
+      { year: '2015', title: 'Reference Quality-Based Competitive Market Structure', journal: 'Intl. J. of Research in Marketing, 32(3): 284–296', desc: 'Empirical model of competitive structures in innovation-driven markets' },
+      { year: '2012', title: 'The Effect of the Triple Helix System and Habitat on Regional Entrepreneurship', journal: 'Research Policy, 41(1): 154–166', desc: 'Econometric analysis of university-industry-government interactions on regional startups' },
+    ],
+    activities: [
+      { title: 'President, AIEA', desc: 'Asia Innovation & Entrepreneurship Association; AIEA–NBER Conference Chair' },
+      { title: 'Vice President, KOFST', desc: 'Korean Federation of Science and Technology Societies, 2020–2022' },
+      { title: 'President, KOTM', desc: 'Korean Association for Technology Management & Economics, 2022–2023' },
+      { title: 'Director, KAIST International Development Cooperation Center', desc: '2018–2022' },
+      { title: 'International Advisory', desc: 'World Bank · UN · ADB · IADB · Stanford FSI' },
+      { title: 'Chair, Science & Technology Policy Committee', desc: 'KOFST, 2017–2020' },
+    ],
+    researchAreas: ['Innovation Strategy', 'Technology Policy', 'Industry Convergence', 'Data-Driven Social Science', 'Triple Helix', 'Entrepreneurship', 'Management Diagnostics', 'Global Issue Analysis'],
+  },
+  ja: {
+    name: '김원준',
+    nameEn: 'Wonjoon Kim',
+    title: 'サムスングローバルリサーチ 代表取締役',
+    subtitle: 'KAIST 技術経営学部 教授',
+    heroLine: '技術と経営の交差点から、イノベーションの本質を問う',
+    aboutTitle: '紹介',
+    aboutBody: '金元俊教授は、技術と経営の交差点においてイノベーションの本質を追究してきた学者であり、実践者です。ソウル大学校にて技術政策の博士号を取得後、イェール大学およびニューヨーク大学を経て、KAISTの技術経営学部にて20年以上にわたり後進の育成に尽力し、韓国における技術経営分野の新たな地平を切り拓いてまいりました。著書『弾力成長（탄력성장）』では、不確実性の時代における組織の進むべき方向を提示し、現在はサムスングローバルリサーチの代表取締役として、学術と実務の垣根を越えた新たな価値の創出に取り組んでおります。',
+    educationTitle: '学歴',
+    careerTitle: '主な経歴',
+    publicationsTitle: '研究・著作',
+    activitiesTitle: '主な活動・役職',
+    researchTitle: '研究分野',
+    footerOrg1: 'サムスングローバルリサーチ (Samsung Global Research)',
+    footerOrg2: 'KAIST 技術経営学部',
+    bookLabel: '著書',
+    paperLabel: '論文',
+    education: [
+      { year: '2003', degree: '博士 (Ph.D.)', field: '技術政策', school: 'ソウル大学校' },
+      { year: '1999', degree: '修士 (M.S.)', field: '材料工学', school: 'ソウル大学校' },
+      { year: '1997', degree: '学士 (B.S.)', field: '材料工学', school: '延世大学校' },
+    ],
+    career: [
+      { period: '2023.12 – 現在', title: '代表取締役', org: 'サムスングローバルリサーチ', desc: 'グループ技術・産業戦略、経営診断、グローバル課題分析を統括' },
+      { period: '2005 – 現在', title: '技術経営学部 教授', org: 'KAIST', desc: 'イノベーション戦略・政策、産業融合、データ駆動型社会科学の研究' },
+      { period: '2019 – 2022', title: '技術経営専門大学院長', org: 'KAIST', desc: '' },
+      { period: '2004 – 2005', title: '兼任助教授', org: 'ニューヨーク大学 (NYU Tandon)', desc: '' },
+      { period: '2003 – 2006', title: '研究員', org: 'イェール大学経営大学院 (Yale SOM)', desc: '' },
+    ],
+    book: { year: '2021', title: '弾力成長（탄력성장）', desc: '危機後の持続可能な成長戦略に関する研究と洞察（ダサンブックス）' },
+    papers: [
+      { year: '2015', title: 'Dynamic Patterns of Industry Convergence', journal: 'Research Policy, 44(9): 1734–1748', desc: '米国全産業における産業間境界変化を大規模テキスト分析で解明' },
+      { year: '2015', title: 'Reference Quality-Based Competitive Market Structure', journal: 'Intl. J. of Research in Marketing, 32(3): 284–296', desc: '消費者参照品質に基づくイノベーション市場の競争構造モデルの実証' },
+      { year: '2012', title: 'The Effect of the Triple Helix System and Habitat on Regional Entrepreneurship', journal: 'Research Policy, 41(1): 154–166', desc: '大学・産業・政府の相互作用が地域起業に与える効果の計量分析' },
+    ],
+    activities: [
+      { title: 'アジアイノベーション・アントレプレナーシップ学会(AIEA) 会長', desc: 'AIEA–NBERカンファレンス組織委員長' },
+      { title: '科学技術団体総連合会 副会長', desc: '2020–2022' },
+      { title: '技術経営経済学会長', desc: '2022–2023' },
+      { title: 'KAIST 国際開発協力センター長', desc: '2018–2022' },
+      { title: '国際機関諮問', desc: 'World Bank · UN · ADB · IADB · スタンフォード大FSI' },
+      { title: '科学技術政策委員会 委員長', desc: '科学技術団体総連合会, 2017–2020' },
+    ],
+    researchAreas: ['イノベーション戦略', '技術政策', '産業融合', 'データ駆動型社会科学', 'トリプルヘリックス', 'アントレプレナーシップ', '経営診断', 'グローバル課題分析'],
+  },
+  zh: {
+    name: '김원준',
+    nameEn: 'Wonjoon Kim',
+    title: '三星全球研究院 首席执行官',
+    subtitle: 'KAIST 技术经营学部 教授',
+    heroLine: '在技术与管理的交汇处，探寻创新的本质',
+    aboutTitle: '简介',
+    aboutBody: '金元俊教授是一位在技术与管理交汇领域深耕多年的学者与实践者。他在首尔大学获得技术政策博士学位后，先后在耶鲁大学和纽约大学从事研究与教学工作，此后在KAIST技术经营学部执教逾二十年，培养了大批技术管理领域的杰出人才，拓展了韩国技术经营学科的广度与深度。通过著作《弹力增长》，他为不确定时代中的组织指明了前行方向。目前，作为三星全球研究院首席执行官，他致力于打破学术研究与企业实践之间的壁垒，持续创造新的价值。',
+    educationTitle: '学历',
+    careerTitle: '主要经历',
+    publicationsTitle: '研究与著作',
+    activitiesTitle: '主要活动与职务',
+    researchTitle: '研究领域',
+    footerOrg1: '三星全球研究院 (Samsung Global Research)',
+    footerOrg2: 'KAIST 技术经营学部',
+    bookLabel: '著作',
+    paperLabel: '论文',
+    education: [
+      { year: '2003', degree: '博士 (Ph.D.)', field: '技术政策', school: '首尔大学' },
+      { year: '1999', degree: '硕士 (M.S.)', field: '材料工学', school: '首尔大学' },
+      { year: '1997', degree: '学士 (B.S.)', field: '材料工学', school: '延世大学' },
+    ],
+    career: [
+      { period: '2023.12 – 现在', title: '首席执行官', org: '三星全球研究院', desc: '统筹集团技术与产业战略、经营诊断及全球议题分析' },
+      { period: '2005 – 现在', title: '技术经营学部 教授', org: 'KAIST', desc: '创新战略与政策、产业融合、数据驱动社会科学研究' },
+      { period: '2019 – 2022', title: '技术经营专门研究生院院长', org: 'KAIST', desc: '' },
+      { period: '2004 – 2005', title: '兼任助理教授', org: '纽约大学 (NYU Tandon)', desc: '' },
+      { period: '2003 – 2006', title: '研究员', org: '耶鲁大学管理学院 (Yale SOM)', desc: '' },
+    ],
+    book: { year: '2021', title: '弹力增长（탄력성장）', desc: '关于危机后可持续增长战略的研究与洞察（多山图书）' },
+    papers: [
+      { year: '2015', title: 'Dynamic Patterns of Industry Convergence', journal: 'Research Policy, 44(9): 1734–1748', desc: '通过大规模文本分析揭示美国各产业间边界的动态变化' },
+      { year: '2015', title: 'Reference Quality-Based Competitive Market Structure', journal: 'Intl. J. of Research in Marketing, 32(3): 284–296', desc: '基于消费者参考质量的创新市场竞争结构实证模型' },
+      { year: '2012', title: 'The Effect of the Triple Helix System and Habitat on Regional Entrepreneurship', journal: 'Research Policy, 41(1): 154–166', desc: '大学-产业-政府三重螺旋对区域创业影响的计量分析' },
+    ],
+    activities: [
+      { title: '亚洲创新与创业学会(AIEA) 会长', desc: 'AIEA–NBER会议组织委员长' },
+      { title: '科学技术团体总联合会 副会长', desc: '2020–2022' },
+      { title: '技术经营经济学会会长', desc: '2022–2023' },
+      { title: 'KAIST 国际开发合作中心主任', desc: '2018–2022' },
+      { title: '国际机构咨询', desc: 'World Bank · UN · ADB · IADB · 斯坦福FSI' },
+      { title: '科学技术政策委员会 委员长', desc: '科学技术团体总联合会, 2017–2020' },
+    ],
+    researchAreas: ['创新战略', '技术政策', '产业融合', '数据驱动社会科学', '三重螺旋', '创业精神', '经营诊断', '全球议题分析'],
+  },
+}
+
+const langLabels: Record<Lang, string> = { ko: '한', en: 'EN', ja: '日', zh: '中' }
+
+function useScrollAnimation() {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible')
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    )
+
+    const elements = node.querySelectorAll('.fade-in-up')
+    elements.forEach((el) => observer.observe(el))
+
+    return () => {
+      elements.forEach((el) => observer.unobserve(el))
+    }
+  }, [])
+
+  return ref
+}
+
 export default function Home() {
+  const [lang, setLang] = useState<Lang>('ko')
+  const [scrolled, setScrolled] = useState(false)
+  const sectionRef = useScrollAnimation()
+  const t = content[lang]
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Re-trigger fade-in on language change
+  const triggerAnimations = useCallback(() => {
+    const node = sectionRef.current
+    if (!node) return
+    const elements = node.querySelectorAll('.fade-in-up')
+    elements.forEach((el) => {
+      el.classList.remove('visible')
+      // Force reflow
+      void (el as HTMLElement).offsetWidth
+      el.classList.add('visible')
+    })
+  }, [sectionRef])
+
+  useEffect(() => {
+    triggerAnimations()
+  }, [lang, triggerAnimations])
+
   return (
-    <main className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center border-b border-gray-100">
-        <div className="max-w-3xl mx-auto">
-          <div className="w-16 h-[2px] bg-[#c9a84c] mx-auto mb-8" />
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light tracking-tight mb-4">
-            김원준
-          </h1>
-          <p className="text-lg md:text-xl text-gray-400 font-light tracking-[0.3em] uppercase mb-8 font-[family-name:var(--font-inter)]">
-            Wonjoon Kim
-          </p>
-          <div className="w-8 h-[1px] bg-[#c9a84c] mx-auto mb-8" />
-          <p className="text-base md:text-lg text-gray-600 font-light leading-relaxed font-[family-name:var(--font-inter)]">
-            삼성글로벌리서치 대표이사
-            <span className="text-gray-300 mx-3">|</span>
-            KAIST 기술경영학부 교수
-          </p>
-          <p className="text-sm text-gray-400 mt-3 font-[family-name:var(--font-inter)]">
-            CEO, Samsung Global Research · Professor, KAIST
-          </p>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="py-24 px-6 bg-[#fafafa]">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-light mb-2">소개</h2>
-          <p className="text-sm text-[#c9a84c] tracking-[0.2em] uppercase mb-10 font-[family-name:var(--font-inter)]">
-            About
-          </p>
-          <div className="space-y-6 text-gray-600 leading-relaxed font-[family-name:var(--font-inter)]">
-            <p>
-              김원준 박사는 대한민국의 경영인이자 경영학자로, 현재{" "}
-              <strong className="text-[#1a2744]">삼성글로벌리서치(Samsung Global Research) 대표이사</strong>로서
-              삼성그룹의 기술·산업 전략, 경영진단 및 글로벌 이슈 분석을 총괄하고 있다.
-            </p>
-            <p>
-              한국과학기술원(KAIST) 기술경영학부 교수로 재직하며 혁신전략·정책,
-              산업융합, 데이터 기반 사회과학을 연구해왔다. 서울대학교에서 기술정책
-              박사학위를 취득한 후 뉴욕대학교(NYU) 겸임조교수,
-              예일대학교(Yale) 경영대학 연구원으로 활동하였으며,
-              MIT 슬론 경영대학원 방문학자를 역임하였다.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Education Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-light mb-2">학력</h2>
-          <p className="text-sm text-[#c9a84c] tracking-[0.2em] uppercase mb-12 font-[family-name:var(--font-inter)]">
-            Education
-          </p>
-          <div className="space-y-10">
-            {[
-              {
-                year: "2003",
-                degree: "박사 (Ph.D.)",
-                field: "기술정책 (Technology Policy)",
-                school: "서울대학교 (Seoul National University)",
-              },
-              {
-                year: "1999",
-                degree: "석사 (M.S.)",
-                field: "재료공학 (Materials Science & Engineering)",
-                school: "서울대학교 (Seoul National University)",
-              },
-              {
-                year: "1997",
-                degree: "학사 (B.S.)",
-                field: "재료공학 (Materials Science & Engineering)",
-                school: "연세대학교 (Yonsei University)",
-              },
-            ].map((edu) => (
-              <div key={edu.year} className="flex gap-8 group">
-                <div className="flex flex-col items-center">
-                  <span className="text-sm text-[#c9a84c] font-medium font-[family-name:var(--font-inter)]">
-                    {edu.year}
-                  </span>
-                  <div className="w-[1px] h-full bg-gray-200 mt-2 group-last:hidden" />
-                </div>
-                <div className="pb-2">
-                  <p className="text-lg font-medium text-[#1a2744]">{edu.degree}</p>
-                  <p className="text-gray-600 font-[family-name:var(--font-inter)]">{edu.field}</p>
-                  <p className="text-gray-400 text-sm font-[family-name:var(--font-inter)]">{edu.school}</p>
-                </div>
-              </div>
+    <div ref={sectionRef}>
+      {/* Navbar */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled ? 'nav-blur bg-white/80 shadow-sm' : 'bg-transparent'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <a href="#" className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold text-[#1a2744]">
+            {t.nameEn}
+          </a>
+          <div className="flex gap-1">
+            {(Object.keys(langLabels) as Lang[]).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`lang-pill px-2.5 py-1 text-xs md:text-sm rounded-full font-medium font-[family-name:var(--font-inter)] ${
+                  lang === l ? 'active' : 'text-gray-500'
+                }`}
+              >
+                {langLabels[l]}
+              </button>
             ))}
           </div>
         </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center hero-pattern">
+        <div className="max-w-4xl mx-auto">
+          <div className="fade-in-up">
+            <h1 className="font-[family-name:var(--font-cormorant)] text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-tight text-[#0D1117] mb-4">
+              {t.name}
+            </h1>
+          </div>
+          <div className="fade-in-up stagger-1">
+            <p className="font-[family-name:var(--font-cormorant)] text-2xl sm:text-3xl md:text-4xl font-light text-gray-400 tracking-wider mb-8">
+              {t.nameEn}
+            </p>
+          </div>
+          <div className="fade-in-up stagger-2">
+            <hr className="gold-divider w-16 mb-8" />
+          </div>
+          <div className="fade-in-up stagger-3">
+            <p className="font-[family-name:var(--font-inter)] text-base md:text-lg text-[#1a2744] font-medium mb-2">
+              {t.title}
+            </p>
+            <p className="font-[family-name:var(--font-inter)] text-sm md:text-base text-gray-500 mb-8">
+              {t.subtitle}
+            </p>
+          </div>
+          <div className="fade-in-up stagger-4">
+            <p className="font-[family-name:var(--font-cormorant)] text-lg md:text-xl text-gray-500 italic">
+              {t.heroLine}
+            </p>
+          </div>
+        </div>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 animate-bounce">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B8973A" strokeWidth="1.5">
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+        </div>
       </section>
 
-      {/* Career Section */}
-      <section className="py-24 px-6 bg-[#fafafa]">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-light mb-2">주요 경력</h2>
-          <p className="text-sm text-[#c9a84c] tracking-[0.2em] uppercase mb-12 font-[family-name:var(--font-inter)]">
-            Career
-          </p>
+      {/* About */}
+      <section className="py-20 md:py-28 px-6 bg-[#F8F6F1]">
+        <div className="max-w-5xl mx-auto">
+          <div className="fade-in-up mb-12">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.aboutTitle}</h2>
+            <hr className="gold-divider w-12 !mx-0 mt-4" />
+          </div>
+          <div className="grid md:grid-cols-5 gap-10 md:gap-16">
+            <div className="md:col-span-3 fade-in-up stagger-1">
+              <p className="font-[family-name:var(--font-inter)] text-gray-600 leading-relaxed text-base md:text-lg">
+                {t.aboutBody}
+              </p>
+            </div>
+            <div className="md:col-span-2 fade-in-up stagger-2">
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: '🎓', label: lang === 'ko' ? '학술 연구' : lang === 'en' ? 'Academia' : lang === 'ja' ? '学術研究' : '学术研究', value: '20+' },
+                  { icon: '🌏', label: lang === 'ko' ? '글로벌 자문' : lang === 'en' ? 'Global Advisory' : lang === 'ja' ? 'グローバル諮問' : '全球咨询', value: 'WB · UN' },
+                  { icon: '📚', label: lang === 'ko' ? '저서' : lang === 'en' ? 'Publications' : lang === 'ja' ? '著書' : '著作', value: '탄력성장' },
+                  { icon: '💼', label: lang === 'ko' ? '현직' : lang === 'en' ? 'Current' : lang === 'ja' ? '現職' : '现任', value: 'CEO' },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className={`card-hover border border-[#E8E0D0] rounded-sm p-4 bg-white fade-in-up stagger-${i + 2}`}
+                  >
+                    <span className="text-2xl mb-2 block">{item.icon}</span>
+                    <p className="font-[family-name:var(--font-inter)] text-xs text-gray-400 uppercase tracking-wider">{item.label}</p>
+                    <p className="font-[family-name:var(--font-cormorant)] text-lg font-semibold text-[#1a2744] mt-1">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Education Timeline */}
+      <section className="py-20 md:py-28 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="fade-in-up mb-12">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.educationTitle}</h2>
+            <hr className="gold-divider w-12 !mx-0 mt-4" />
+          </div>
           <div className="space-y-8">
-            {[
-              {
-                period: "2023.12 – 현재",
-                title: "대표이사",
-                org: "삼성글로벌리서치 (Samsung Global Research)",
-                desc: "그룹 기술·산업 전략, 경영진단, 글로벌 이슈 분석 총괄",
-              },
-              {
-                period: "2022 – 2023",
-                title: "테크앤퓨처(Tech & Future) 본부장",
-                org: "삼성글로벌리서치",
-                desc: "전자산업 및 차세대 기술 어젠다 총괄",
-              },
-              {
-                period: "2019 – 2022",
-                title: "기술경영전문대학원장",
-                org: "KAIST",
-                desc: "대학원 행정 및 연구 프로그램 총괄",
-              },
-              {
-                period: "2021 – 2022",
-                title: "바이오혁신경영전문대학원장",
-                org: "KAIST",
-                desc: "",
-              },
-              {
-                period: "2018 – 현재",
-                title: "기술경영학부 교수 · 혁신전략정책연구소장",
-                org: "KAIST",
-                desc: "",
-              },
-              {
-                period: "2018",
-                title: "방문학자",
-                org: "MIT 슬론 경영대학원 (MIT Sloan School of Management)",
-                desc: "",
-              },
-              {
-                period: "2011 – 2012",
-                title: "방문학자",
-                org: "MIT TPP (Technology and Policy Program)",
-                desc: "",
-              },
-              {
-                period: "2005 – 2017",
-                title: "조교수 · 부교수",
-                org: "KAIST 기술경영학부",
-                desc: "",
-              },
-              {
-                period: "2004 – 2005",
-                title: "겸임조교수",
-                org: "뉴욕대학교 경제학과 (New York University)",
-                desc: "",
-              },
-              {
-                period: "2003 – 2006",
-                title: "연구원 · 방문연구원",
-                org: "예일대학교 경영대학 (Yale School of Management)",
-                desc: "",
-              },
-            ].map((career, i) => (
-              <div
-                key={i}
-                className="flex gap-8 items-start border-l-2 border-gray-200 pl-8 hover:border-[#c9a84c] transition-colors duration-300"
-              >
-                <div className="min-w-[130px]">
-                  <span className="text-sm text-[#c9a84c] font-medium font-[family-name:var(--font-inter)] whitespace-nowrap">
-                    {career.period}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-lg font-medium text-[#1a2744]">{career.title}</p>
-                  <p className="text-gray-500 font-[family-name:var(--font-inter)]">{career.org}</p>
-                  {career.desc && (
-                    <p className="text-gray-400 text-sm mt-1 font-[family-name:var(--font-inter)]">{career.desc}</p>
+            {t.education.map((edu, i) => (
+              <div key={edu.year} className={`fade-in-up stagger-${i + 1} relative flex gap-6 items-start`}>
+                <div className="flex flex-col items-center">
+                  <div className="timeline-dot" />
+                  {i < t.education.length - 1 && (
+                    <div className="w-0.5 h-full bg-gradient-to-b from-[#B8973A] to-[#E8E0D0] mt-1 min-h-[40px]" />
                   )}
                 </div>
+                <div className="pb-4">
+                  <span className="font-[family-name:var(--font-inter)] text-sm text-[#B8973A] font-semibold">{edu.year}</span>
+                  <p className="font-[family-name:var(--font-cormorant)] text-xl font-semibold text-[#1a2744] mt-1">{edu.degree}</p>
+                  <p className="font-[family-name:var(--font-inter)] text-gray-600">{edu.field}</p>
+                  <p className="font-[family-name:var(--font-inter)] text-sm text-gray-400">{edu.school}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Research & Publications Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-light mb-2">주요 연구 및 저서</h2>
-          <p className="text-sm text-[#c9a84c] tracking-[0.2em] uppercase mb-12 font-[family-name:var(--font-inter)]">
-            Research & Publications
-          </p>
+      {/* Career Timeline */}
+      <section className="py-20 md:py-28 px-6 bg-[#F8F6F1]">
+        <div className="max-w-4xl mx-auto">
+          <div className="fade-in-up mb-12">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.careerTitle}</h2>
+            <hr className="gold-divider w-12 !mx-0 mt-4" />
+          </div>
           <div className="space-y-8">
-            {/* Book */}
-            <div className="p-8 border border-gray-100 rounded-sm bg-white hover:shadow-sm transition-shadow duration-300">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-xs bg-[#1a2744] text-white px-3 py-1 rounded-sm tracking-wider uppercase font-[family-name:var(--font-inter)]">
-                  저서
-                </span>
-                <span className="text-sm text-gray-400 font-[family-name:var(--font-inter)]">2021</span>
+            {t.career.map((c, i) => (
+              <div key={i} className={`fade-in-up stagger-${Math.min(i + 1, 5)} relative flex gap-6 items-start`}>
+                <div className="flex flex-col items-center">
+                  <div className="timeline-dot" />
+                  {i < t.career.length - 1 && (
+                    <div className="w-0.5 h-full bg-gradient-to-b from-[#B8973A] to-[#E8E0D0] mt-1 min-h-[40px]" />
+                  )}
+                </div>
+                <div className="pb-4">
+                  <span className="font-[family-name:var(--font-inter)] text-sm text-[#B8973A] font-semibold">{c.period}</span>
+                  <p className="font-[family-name:var(--font-cormorant)] text-xl font-semibold text-[#1a2744] mt-1">{c.title}</p>
+                  <p className="font-[family-name:var(--font-inter)] text-gray-600">{c.org}</p>
+                  {c.desc && <p className="font-[family-name:var(--font-inter)] text-sm text-gray-400 mt-1">{c.desc}</p>}
+                </div>
               </div>
-              <h3 className="text-xl font-medium mb-2">탄력성장 (Resilient Growth)</h3>
-              <p className="text-gray-500 text-sm font-[family-name:var(--font-inter)]">
-                위기 이후 지속 가능한 성장 전략에 대한 연구와 통찰을 담은 저서
-              </p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Publications */}
+      <section className="py-20 md:py-28 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="fade-in-up mb-12">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.publicationsTitle}</h2>
+            <hr className="gold-divider w-12 !mx-0 mt-4" />
+          </div>
+          <div className="space-y-6">
+            {/* Book */}
+            <div className="fade-in-up card-hover border border-[#E8E0D0] rounded-sm p-6 md:p-8 bg-white">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-[family-name:var(--font-inter)] text-xs bg-[#1a2744] text-white px-3 py-1 rounded-sm tracking-wider uppercase">
+                  {t.bookLabel}
+                </span>
+                <span className="font-[family-name:var(--font-inter)] text-sm text-gray-400">{t.book.year}</span>
+              </div>
+              <h3 className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold text-[#1a2744] mb-2">{t.book.title}</h3>
+              <p className="font-[family-name:var(--font-inter)] text-gray-500 text-sm">{t.book.desc}</p>
             </div>
 
             {/* Papers */}
-            {[
-              {
-                year: "2015",
-                title:
-                  "Dynamic Patterns of Industry Convergence: Evidence from a Large Amount of Unstructured Data",
-                journal: "Research Policy, 44(9): 1734–1748",
-                desc: "미국 전 산업 대상 산업 간 경계 변화를 200만 건 신문기사 텍스트 분석으로 규명",
-              },
-              {
-                year: "2015",
-                title:
-                  "Reference Quality-Based Competitive Market Structure for Innovation Driven Markets",
-                journal:
-                  "International Journal of Research in Marketing, 32(3): 284–296",
-                desc: "소비자 참조품질 기반 혁신 시장의 경쟁구조 모형을 미국 휴대전화 시장으로 실증",
-              },
-              {
-                year: "2012",
-                title:
-                  "The Effect of the Triple Helix System and Habitat on Regional Entrepreneurship: Empirical Evidence from the U.S.",
-                journal: "Research Policy, 41(1): 154–166",
-                desc: "대학·산업·정부 상호작용(트리플 헬릭스)이 지역 창업에 미치는 효과를 계량 분석",
-              },
-            ].map((paper, i) => (
-              <div
-                key={i}
-                className="p-8 border border-gray-100 rounded-sm bg-white hover:shadow-sm transition-shadow duration-300"
-              >
+            {t.papers.map((paper, i) => (
+              <div key={i} className={`fade-in-up stagger-${i + 1} card-hover border border-[#E8E0D0] rounded-sm p-6 md:p-8 bg-white`}>
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-xs bg-gray-100 text-[#1a2744] px-3 py-1 rounded-sm tracking-wider uppercase font-[family-name:var(--font-inter)]">
-                    논문
+                  <span className="font-[family-name:var(--font-inter)] text-xs bg-[#F8F6F1] text-[#1a2744] px-3 py-1 rounded-sm tracking-wider uppercase">
+                    {t.paperLabel}
                   </span>
-                  <span className="text-sm text-gray-400 font-[family-name:var(--font-inter)]">{paper.year}</span>
+                  <span className="font-[family-name:var(--font-inter)] text-sm text-gray-400">{paper.year}</span>
                 </div>
-                <h3 className="text-lg font-medium mb-2 italic">{paper.title}</h3>
-                <p className="text-sm text-[#c9a84c] mb-2 font-[family-name:var(--font-inter)]">{paper.journal}</p>
-                <p className="text-gray-500 text-sm font-[family-name:var(--font-inter)]">{paper.desc}</p>
+                <h3 className="font-[family-name:var(--font-cormorant)] text-lg font-medium italic text-[#1a2744] mb-2">{paper.title}</h3>
+                <p className="font-[family-name:var(--font-inter)] text-sm text-[#B8973A] mb-2">{paper.journal}</p>
+                <p className="font-[family-name:var(--font-inter)] text-gray-500 text-sm">{paper.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Activities & Recognitions */}
-      <section className="py-24 px-6 bg-[#fafafa]">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-light mb-2">주요 활동 및 역할</h2>
-          <p className="text-sm text-[#c9a84c] tracking-[0.2em] uppercase mb-12 font-[family-name:var(--font-inter)]">
-            Activities & Leadership
-          </p>
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              {
-                title: "아시아 혁신·기업가정신학회(AIEA) 회장",
-                desc: "AIEA–NBER 컨퍼런스 조직위원장",
-              },
-              {
-                title: "과학기술단체총연합회 부회장",
-                desc: "2020–2022",
-              },
-              {
-                title: "과학기술정책위원회 위원장",
-                desc: "과학기술단체총연합회, 2017–2020",
-              },
-              {
-                title: "기술경영경제학회장",
-                desc: "2022–2023",
-              },
-              {
-                title: "KAIST 국제개발협력센터장",
-                desc: "2018–2022",
-              },
-              {
-                title: "국제기구 자문 및 강연",
-                desc: "World Bank · UN · ADB · IADB · 스탠퍼드대 FSI 등",
-              },
-            ].map((activity, i) => (
-              <div
-                key={i}
-                className="p-6 border border-gray-100 rounded-sm bg-white"
-              >
-                <p className="font-medium text-[#1a2744] mb-1">{activity.title}</p>
-                <p className="text-sm text-gray-400 font-[family-name:var(--font-inter)]">{activity.desc}</p>
+      {/* Activities */}
+      <section className="py-20 md:py-28 px-6 bg-[#F8F6F1]">
+        <div className="max-w-4xl mx-auto">
+          <div className="fade-in-up mb-12">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.activitiesTitle}</h2>
+            <hr className="gold-divider w-12 !mx-0 mt-4" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            {t.activities.map((a, i) => (
+              <div key={i} className={`fade-in-up stagger-${Math.min(i + 1, 6)} card-hover border border-[#E8E0D0] rounded-sm p-5 bg-white`}>
+                <p className="font-[family-name:var(--font-inter)] font-medium text-[#1a2744] mb-1 text-sm md:text-base">{a.title}</p>
+                <p className="font-[family-name:var(--font-inter)] text-xs md:text-sm text-gray-400">{a.desc}</p>
               </div>
             ))}
           </div>
@@ -298,26 +484,17 @@ export default function Home() {
       </section>
 
       {/* Research Areas */}
-      <section className="py-24 px-6">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-light mb-2">연구 분야</h2>
-          <p className="text-sm text-[#c9a84c] tracking-[0.2em] uppercase mb-12 font-[family-name:var(--font-inter)]">
-            Research Areas
-          </p>
-          <div className="flex flex-wrap gap-3">
-            {[
-              "혁신전략 · Innovation Strategy",
-              "기술정책 · Technology Policy",
-              "산업융합 · Industry Convergence",
-              "데이터 기반 사회과학",
-              "트리플 헬릭스 · Triple Helix",
-              "기업가정신 · Entrepreneurship",
-              "경영진단 · Management Consulting",
-              "글로벌 이슈 분석",
-            ].map((area) => (
+      <section className="py-20 md:py-28 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="fade-in-up mb-12">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-light text-[#1a2744] mb-2">{t.researchTitle}</h2>
+            <hr className="gold-divider w-12 !mx-0 mt-4" />
+          </div>
+          <div className="flex flex-wrap gap-3 fade-in-up stagger-1">
+            {t.researchAreas.map((area) => (
               <span
                 key={area}
-                className="px-4 py-2 text-sm border border-gray-200 text-gray-600 rounded-sm hover:border-[#c9a84c] hover:text-[#c9a84c] transition-colors duration-300 font-[family-name:var(--font-inter)]"
+                className="font-[family-name:var(--font-inter)] px-4 py-2 text-sm border border-[#E8E0D0] text-gray-600 rounded-sm card-hover cursor-default"
               >
                 {area}
               </span>
@@ -327,20 +504,16 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-6 border-t border-gray-100 bg-[#fafafa]">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="w-12 h-[1px] bg-[#c9a84c] mx-auto mb-6" />
-          <p className="text-sm text-gray-500 font-[family-name:var(--font-inter)]">
-            삼성글로벌리서치 (Samsung Global Research)
-          </p>
-          <p className="text-sm text-gray-500 font-[family-name:var(--font-inter)] mt-1">
-            KAIST 기술경영학부 (Graduate School of Innovation & Technology Management)
-          </p>
-          <p className="text-xs text-gray-300 mt-6 font-[family-name:var(--font-inter)]">
+      <footer className="py-16 px-6 border-t border-[#E8E0D0] bg-[#F8F6F1]">
+        <div className="max-w-4xl mx-auto text-center">
+          <hr className="gold-divider w-12 mb-8" />
+          <p className="font-[family-name:var(--font-inter)] text-sm text-gray-500">{t.footerOrg1}</p>
+          <p className="font-[family-name:var(--font-inter)] text-sm text-gray-500 mt-1">{t.footerOrg2}</p>
+          <p className="font-[family-name:var(--font-inter)] text-xs text-gray-300 mt-6">
             © {new Date().getFullYear()} Wonjoon Kim. All rights reserved.
           </p>
         </div>
       </footer>
-    </main>
-  );
+    </div>
+  )
 }
